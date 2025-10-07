@@ -3,7 +3,7 @@
 /* eslint-disable no-console */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
 import {
   deleteTodos,
@@ -42,16 +42,18 @@ export const App: React.FC = () => {
     inputRef.current?.focus();
   }, []);
 
-  const filteredTodos = todos.filter(todo => {
-    switch (filter) {
-      case Filter.Active:
-        return !todo.completed;
-      case Filter.Completed:
-        return todo.completed;
-      default:
-        return true;
-    }
-  });
+  const filteredTodos = useMemo(() => {
+    return todos.filter(todo => {
+      switch (filter) {
+        case Filter.Active:
+          return !todo.completed;
+        case Filter.Completed:
+          return todo.completed;
+        default:
+          return true;
+      }
+    });
+  }, [todos, filter]);
 
   if (!USER_ID) {
     return <UserWarning />;
@@ -65,7 +67,7 @@ export const App: React.FC = () => {
         setError(null);
       })
       .catch(() => {
-        setError('Unable to load todos');
+        setError(ErrorType.LOAD);
       })
       .finally(() => {
         setLoading(false);
@@ -76,7 +78,7 @@ export const App: React.FC = () => {
     e.preventDefault();
 
     if (!newTitle.trim()) {
-      setError('Title should not be empty');
+      setError(ErrorType.EMPTY_TITLE);
 
       return;
     }
@@ -102,7 +104,7 @@ export const App: React.FC = () => {
       setNewTitle('');
       setError('');
     } catch {
-      setError('Unable to add a todo');
+      setError(ErrorType.ADD);
     } finally {
       setTimeout(() => {
         inputRef.current?.focus();

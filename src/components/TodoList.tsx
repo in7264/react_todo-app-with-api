@@ -48,7 +48,7 @@ export const TodoList: React.FC<Props> = ({
           <input
             data-cy="TodoTitleField"
             type="text"
-            className="todo__edit"
+            className="todo__title-field"
             value={editingTitle}
             autoFocus
             onChange={e => setEditingTitle(e.target.value)}
